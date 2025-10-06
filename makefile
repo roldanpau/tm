@@ -11,7 +11,8 @@ progs = lin_interp spline_interp fft fdd Fourier_coefs_given_I \
 		dijkstra diffusion_shortest_path diffusion_shortest_path_TM \
 		diffusion_stoch \
 		max_dLtilde_dI max_d2Ltilde_dI twist \
-		orbit_error
+		orbit_error \
+        diffusion_shortest_path_Iini_Ifin
 
 objects = FP.o FP_module.o \
 		  FP_error.o FT_newerror.o \
@@ -33,7 +34,8 @@ objects = FP.o FP_module.o \
 		  diffusion_shortest_path_TM.o \
 		  diffusion_stoch.o \
 		  max_dLtilde_dI.o max_d2Ltilde_dI.o twist.o \
-		  orbit_error.o
+		  orbit_error.o \
+          diffusion_shortest_path_Iini_Ifin.o 
 
 CFLAGS = -O3 #-g
 LDFLAGS = -O3 #-g
@@ -124,6 +126,9 @@ max_d2Ltilde_dI: max_d2Ltilde_dI.o FP_module.o
 twist: twist.o P_module.o FP_module.o
 
 orbit_error: orbit_error.o SM_module.o FP_module.o P_module.o
+
+diffusion_shortest_path_Iini_Ifin: diffusion_shortest_path_Iini_Ifin.o SM_module.o FP_module.o \
+	P_module.o IM_module.o dijkstra_module.o
 
 .PHONY : clean
 clean:

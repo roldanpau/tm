@@ -1,5 +1,5 @@
 /** \file phase_port_SM.c
-  * \brief Plot the phase portrait of the (damped) scattering map.
+  * \brief Plot the phase portrait of the scattering map.
   *
   * Take a bunch (100) of initial conditions in the NHIM of the form (\f$
   * \phi=0, I\in[Imin,Imax] \f$) and iterate them by the SM many times (say,
@@ -10,13 +10,12 @@
   * \f[ (I_1, \phi_1) \to (I_2, \phi_2) \to \cdots \to (I_n, \phi_n) \f] 
   * we output the whole orbit itself, to be plotted as dots.
   *
-  * NOTES: 
-  *     Caller must specify which SM to use (SM1 or SM2) as a command-line
-  *     argument.
+  * \note Caller must specify which SM to use (SM1 or SM2) as a command-line
+  * argument.
   *
   * USAGE:	
-  *		./phase_port_SM iSM Imin Imax norb nit damping_coef > file.res
-  *		./phase_port_SM 1 0 7.5 100 1000 1 > phase_port_SM.res
+  *		./phase_port_SM iSM Imin Imax norb nit > file.res
+  *		./phase_port_SM 1 0 7.5 100 1000 > phase_port_SM.res
   *
   * CALLED_BY: phase_port_SM.sh
   */
@@ -24,12 +23,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>		// M_PI
-#include "FT_module.h"
-#include "T_module.h"
+#include "FP_module.h"
+#include "P_module.h"
 #include "SM_module.h"
 
-static const char ddOmega_FILE[] = "ddOmega.res";
-static const char ddOmega_FILE_SM2[] = "ddOmega_SM2.res";
+static const char ipOmega_FILE[] = "ipOmega.res";
+static const char ipOmega_FILE_SM2[] = "ipOmega_SM2.res";
 
 int
 main (int argc, char *argv[])
@@ -37,16 +36,15 @@ main (int argc, char *argv[])
 	const int nfour=65; 	/* Number of Fourier coeffs used in FFT */
 	const int ntori=8;		/* Number of tori used in numerical SM */
 
+    const int N = 8;    /* Degree of Fourier series */
+    const int L = 4;    /* Degree of Taylor series */
+
 	int norb;	/* Number of orbits */
 	int nit;	/* Number of iterations of the SM */
-	double a;	/* Perturbation parameter (size of non-integrable part) */
 
-	double ddA[nfour][ntori];	/* divided differences of Fourier coeffs A_n(I) */
-	double ddB[nfour][ntori];	/* divided differences of Fourier coeffs B_n(I) */
-    double ddOmega[ntori-1];      /* divided differences of omega(I) */
-
-    int N;    /* Degree of Fourier series */
-    int M;    /* Degree of Taylor series */
+    double ipA[N+1][L+1];   /* polyn interp of Fourier coeffs A_n(I) */
+    double ipB[N+1][L+1];   /* polyn interp of Fourier coeffs B_n(I) */
+    double ipOmega[L+1]; 	/* polyn interp of omega(I) */
 
     SM_t bSM;			/* Which SM (SM1 or SM2) */
     double I, phi;      /* (I, \phi) = Point in the domain of the SM */
@@ -56,40 +54,33 @@ main (int argc, char *argv[])
 
     /* auxiliary vars */
     int iSM;
-	int ierr;
+    int iErr;
 
-    if(argc != 7)
+    if(argc != 6)
     {
 		fprintf(stderr, 
                 "Num of args incorrect. \
-               Usage: %s SM Imin Imax norbits niterations a\n", argv[0]);
+               Usage: %s SM Imin Imax norbits niterations\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     iSM = atoi(argv[1]);
     if(iSM==1)
-	{
         bSM = SM1;
-		N=4; M=5;
-	}
     else
-	{
         bSM = SM2;
-		N=4; M=6;
-	}
 
     Imin = atof(argv[2]);
     Imax = atof(argv[3]);
 	norb = atoi(argv[4]);
 	nit = atoi(argv[5]);
-	a = atof(argv[6]);
 
-    /* Read FT series (divided differences) from file */
-    read_FT(nfour,ntori,bSM,ddA,ddB);
+    /* Read FP series (polyn interp) from file */
+    read_FP(N,L,bSM,ipA,ipB);
 
-    /* Read Taylor series (divided differences) from file */
-    if(bSM==SM1)    read_T(ntori-1,ddOmega_FILE,ddOmega);
-    else            read_T(ntori-1,ddOmega_FILE_SM2,ddOmega);
+    /* Read Polynomial series from file */
+	if(bSM==SM1)	read_P(L,ipOmega_FILE,ipOmega);
+	else			read_P(L,ipOmega_FILE_SM2,ipOmega);
 
 	/* Iterate over all orbits */
 	for(int i=0; i<= norb; i++)
@@ -108,10 +99,14 @@ main (int argc, char *argv[])
 				//if(it<10)
 				//	continue;	
 
-				if(damped_SM(nfour, ntori, ddA, ddB, ddOmega, N, M, I, phi,
-						&Ip, &phip, a) != SUCCESS) {
-					break;	/* Continue with next orbit */
-				}
+	/* Compute the SM: (I, phi) -> (Ip, phip) */
+    iErr=SM(N, L, ipA, ipB, ipOmega, I, phi, &Ip, &phip);
+    if(iErr)
+    {
+        fprintf(stderr, 
+        "SM: Error computing the SM at I=%f, phi=%f\n", I, phi);
+        continue;
+    }
 				I = Ip;
 				phi = phip;
 

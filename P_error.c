@@ -77,6 +77,7 @@ main (int argc, char *argv[])
 	FILE *fp_dom;
 	FILE *fp_rng;
 	double Itor, t;
+    int iErr;
 
 	if(argc != 3)
 	{
@@ -104,6 +105,8 @@ main (int argc, char *argv[])
         /* L = Degree of Polynomial expansion */
         for(int L=0; L<min(ntori-1, Imax); L++)	
         {
+            fprintf(stderr, "N=%d, L=%d\n", N,L);
+
             /*** Compute coefs of FP series for SM ***/
 
             double ipA[N+1][L+1];   /* polyn interp of Fourier coeffs A_n(I) */
@@ -159,7 +162,14 @@ main (int argc, char *argv[])
 					phip = constrainAngle(phip);
                 
                     /* (2) Compute approximate SM using FT model. */
-					SM(N, L, ipA, ipB, ipOmega, I, phi, &tIp, &tphip);
+                    iErr=SM(N, L, ipA, ipB, ipOmega, I, phi, &tIp, &tphip);
+                    if(iErr)
+                    {
+                        fprintf(stderr, 
+                        "T_error: Error computing the SM at I=%f, phi=%f\n", 
+                        I, phi);
+                        exit(EXIT_FAILURE);
+                    }
 
 					/*
                     printf("Num. SM: (%f %f) -> %f \t Approx. SM: (%f %f) -> %f\n", 
@@ -176,7 +186,7 @@ main (int argc, char *argv[])
                 }
                 fclose(fp_dom);
                 fclose(fp_rng);
-                fprintf(stderr, "Max error for torus %d is: %f\n", (int)Itor, max_error_tor);
+                //fprintf(stderr, "Max error for torus %d is: %f\n", (int)Itor, max_error_tor);
                 if(max_error_tor>max_error) max_error = max_error_tor;
             }
             printf("%d %d %f\n", N, L, max_error);

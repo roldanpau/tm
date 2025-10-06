@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>       // M_PI
-#include "T_module.h"   // constrainAngle
+#include "P_module.h"   // constrainAngle
 
 /**
   * \brief Compute the inner map \f$ (I', \phi') = \tau(I,\phi) \f$.
@@ -28,7 +28,8 @@ void IM(double I, double phi, double *Ip, double *phip)
 
 	if(I<=0 || I>7)	/* Initial condition is outside valid domain of IM */
 	{
-		fprintf(stderr, "I.C. outside valid domain of IM\n");
+		fprintf(stderr, "I.C. (I,phi)=(%f,%f) outside valid domain of IM\n", I,
+        phi);
 		*Ip = I;
 		*phip = phi;
 		return;

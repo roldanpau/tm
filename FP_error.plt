@@ -1,5 +1,5 @@
-#set term tikz
-#set out "FT_error.tex"
+set term tikz
+set out "FP_error.tex"
 
 #set title "Error in the I component"
 

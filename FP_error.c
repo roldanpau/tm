@@ -6,7 +6,7 @@
   * the global domain is chosen [0,7].
   *
   * The error depends on the degree N of the Fourier expansion, and degree L of
-  * the Polynomial expansion. Thus for each pair (L,N) we compute the error, and
+  * the Polynomial expansion. Thus for each pair (N,L) we compute the error, and
   * print it to stdout.
   *
   * NOTES: 

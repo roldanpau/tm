@@ -8,11 +8,16 @@
   * Finally, average \f$ \omega(I) \f$ over all angles, and print result to
   * stdout.
   *
-  * NOTES: 
-  *		In principle, \f$ \omega(I) \f$ should be constant w.r.t. \f$ \phi \f$.
+  * \attention Caller must specify which SM to use (SM1 or SM2) as a
+  *	command-line argument.
   *
-  *		Caller must specify which SM to use (SM1 or SM2) as a command-line
-  *		argument.
+  * \remark In principle, \f$ \omega(I) \f$ should be constant w.r.t. \f$ \phi
+  * \f$.
+  *
+  * \note The series \f$ \widetilde{L}(I,\phi') \f$ needs to be evaluated at
+  * some truncation level N,M. We decide to evaluate it at the truncation level
+  * where the minimum I-error is achieved. This was analyzed by FP_error, where
+  * we found that the minimum FT error for both SM1 and SM2 is at (N,L)=(8,4).
   *
   * USAGE:	
   *		./omega SM I > omega.res
@@ -26,7 +31,7 @@
 #include <stdio.h>
 #include <math.h>	// M_PI
 
-#include "FT_module.h"
+#include "FP_module.h"
 
 int
 main (int argc, char *argv[])
@@ -34,11 +39,11 @@ main (int argc, char *argv[])
 	const int nfour=65; 	/* Number of Fourier coeffs used in FFT */
 	const int ntori=8;		/* Number of tori used in numerical SM */
 
-	double ddA[nfour][ntori];	/* divided differences of Fourier coeffs A_n(I) */
-	double ddB[nfour][ntori];	/* divided differences of Fourier coeffs B_n(I) */
+	const int N=8;	/* Degree of Fourier expansion */
+	const int L=4;	/* Degree of Taylor expansion */
 
-	const int N=4;	/* Degree of Fourier expansion */
-	const int M=5;	/* Degree of Taylor expansion */
+	double ipA[N+1][L+1];	/* polyn interp of Fourier coeffs A_n(I) */
+	double ipB[N+1][L+1];	/* polyn interp of Fourier coeffs B_n(I) */
 
 	double Ap[N+1];	/* Derivative of Fourier coefficients A_0(I), A_1(I), ..., A_N(I) */
 	double Bp[N+1];	/* Derivative of Fourier coefficients B_0(I), B_1(I), ..., B_n(I) */
@@ -66,18 +71,16 @@ main (int argc, char *argv[])
 	}
   
 	iSM = atoi(argv[1]);
-	if(iSM==1)
-		SM = SM1;
-	else
-		SM = SM2;
+    if(iSM==1)  SM = SM1;
+    else        SM = SM2;
 
 	I = atof(argv[2]);	/* scaled action level, e.g. I=2 */
 
-    /* Read FT series (divided differences) from file */
-    read_FT(nfour,ntori,SM,ddA,ddB);
+    /* Read FP series from file */
+    read_FP(N,L,SM,ipA,ipB);
 
-    dcoefs_eval(nfour,ntori,ddA,N,M,I,Ap);	/* Compute F. coefs A_n(I) for action value I */
-    dcoefs_eval(nfour,ntori,ddB,N,M,I,Bp);	/* Compute F. coefs B_n(I) for action value I */
+    dcoefs_eval(N,L,ipA,I,Ap);	/* Compute deriv. of A_n(I) for action value I */
+    dcoefs_eval(N,L,ipB,I,Bp);	/* Compute deriv. of B_n(I) for action value I */
 
 	if(SM==SM1)
 	{

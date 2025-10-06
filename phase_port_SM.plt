@@ -8,7 +8,7 @@ set out "phase_port_SM.png"
 set xlabel "phi"
 set ylabel "I"
 
-set xrange [0:pi+0.5]
+set xrange [0:2*pi+0.5]
 #set yrange [0:7]
 
 # resonance 2:3

@@ -1,4 +1,4 @@
-PAPERDIR=~/mat-nuvol/research/ndft-paper
+PAPERDIR=.
 IMGDIR=$PAPERDIR/images
 
 make omega
@@ -23,3 +23,4 @@ make omega
 
 gnuplot omega_all.plt
 mv omega_all.tex $IMGDIR
+mv omega_all_SM2.tex $IMGDIR

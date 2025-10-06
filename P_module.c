@@ -16,17 +16,15 @@
 #include <gsl/gsl_multifit.h>   // Multi-parameter Linear Regression
 
 /** Constrain angle \f$ x \in [-2\pi, 2\pi) \f$ to be in \f$ [0, 2\pi) \f$.
-  * Then, further constrain angle to \f$ [0, \pi) \f$.
- *
  */
 double constrainAngle(double x){
     x = fmod(x,2*M_PI);
     if (x < 0)
         x += 2*M_PI;
 
-	/* Further constrain to [0,\pi) */
+	/* Further constrain to [0,\pi)
 	if (x>= M_PI) 
-		x -= M_PI;
+		x -= M_PI; */
     return x;
 }
 
@@ -50,7 +48,11 @@ void read_omegas(size_t ntori, const char *fn, double omega_all[ntori])
     fp = fopen(fn, "r");
 	for(int i=0; i<ntori; i++)
 	{
-		fscanf(fp,"%le %le", &I, &(omega_all[i]));
+		if (fscanf(fp,"%le %le", &I, &(omega_all[i])) < 2)
+        {
+            printf("read_omegas: could not read all omegas!\n");
+            exit(EXIT_FAILURE);
+        }
 	}
     fclose(fp);
 }
