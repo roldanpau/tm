@@ -283,7 +283,6 @@ main (int argc, char *argv[])
 	target = ip*nCellsI+jp;
 	//printf("Target cell: (%d,%d) -> Target vertex: %d\n",ip,jp,target);
 
-	printf("%f %f\n", I, phi);
 	current = source;
     //while(current != target)
     //while(fabs(I-It)+fabs(phi-phit)>0.5)
@@ -305,6 +304,8 @@ main (int argc, char *argv[])
 		{
 			/* Compute the IM: (I, phi) -> (Ip, phip) */
 			IM(I, phi, &Ip, &phip);
+			printf("%f %f %f %f %s\n", I, phi, Ip, phip, "IM");
+
 			I = Ip;
 			phi_old = phi;
 			phi = phip;
@@ -314,8 +315,6 @@ main (int argc, char *argv[])
 			   diffusion_SM2.plt.
 			 */
 			//if(phi_old<M_PI/2 && phi>M_PI/2) printf("\n");
-				
-			printf("%f %f %s\n", I, phi, "IM");
 		}
 		else if(map == 1)
 		{
@@ -327,9 +326,10 @@ main (int argc, char *argv[])
                 "diffusion_shortest_path: Error computing the SM1 at I=%f, phi=%f\n", I, phi);
                 exit(EXIT_FAILURE);
             }
+			printf("%f %f %f %f %s\n", I, phi, Ip, phip, "SM1");
+
 			I = Ip;
 			phi = phip;
-			printf("%f %f %s\n", I, phi, "SM1");
 		}
 		else	/* SM2 */
 		{
@@ -341,14 +341,24 @@ main (int argc, char *argv[])
                 "diffusion_shortest_path: Error computing the SM2 at I=%f, phi=%f\n", I, phi);
                 exit(EXIT_FAILURE);
             }
+			printf("%f %f %f %f %s\n", I, phi, Ip, phip, "SM2");
+
 			I = Ip;
 			phi = phip;
-			printf("%f %f %s\n", I, phi, "SM2");
 		}
 
 		/* Update current vertex */
 		pt2cell(I,phi,&i,&j);
 		current = i*nCellsI+j;
     }
+
+    /* Print last iterate */
+    if(map == 0)
+        printf("%f %f %s\n", I, phi, "IM");
+    else if(map == 1)
+        printf("%f %f %s\n", I, phi, "SM1");
+    else
+        printf("%f %f %s\n", I, phi, "SM2");
+
     return 0;
 }
