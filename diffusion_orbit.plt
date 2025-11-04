@@ -25,42 +25,57 @@ set view 60,185
 #-.9901603705827249 0.002430819433404007 0.0002400164432447684
 #EOD
 
-splot [:] [:] [-0.0005:0.0005] \
-"pseudo1_1.res" u 1:3:5 w l ls 2 not, \
-"pseudo1_2.res" u 1:3:5 w l ls 2 not, \
-"pseudo1_3.res" u 1:3:5 w l ls 2 not, \
-"pseudo1_4.res" u 1:3:5 w l ls 2 not
+splot [:] [:] [-0.0008:0.0008] \
+"pseudo1_1.res" u 2:4:6 w l ls 2 not, \
+"pseudo1_2.res" u 2:4:6 w l ls 2 not, \
+"pseudo1_3.res" u 2:4:6 w l ls 2 not, \
+"pseudo1_4.res" u 2:4:6 w l ls 2 not
 #$Mydata1 w p ls SM1 not
 
 pause -1
 
-replot \
-"pseudo2.res" u 1:3:5 w l ls 1 not, \
-"pseudo3.res" u 1:3:5 w l ls 1 not, \
-"pseudo4.res" u 1:3:5 w l ls 1 not, \
-"pseudo5.res" u 1:3:5 w l ls 1 not, \
-"pseudo6.res" u 1:3:5 w l ls 1 not
+replot for [i=2:6] "pseudo".i.".res" u 2:4:6 w l ls 1 not
 #$Mydata2 w p ls IM not
 
 pause -1
 
 replot \
-"pseudo7_1.res" u 1:3:5 w l ls 3 not, \
-"pseudo7_2.res" u 1:3:5 w l ls 3 not, \
-"pseudo7_3.res" u 1:3:5 w l ls 3 not, \
-"pseudo7_4.res" u 1:3:5 w l ls 3 not
-#$Mydata1 w p ls SM1 not
+"pseudo7_1.res" u 2:4:6 w l ls 3 not, \
+"pseudo7_2.res" u 2:4:6 w l ls 3 not, \
+"pseudo7_3.res" u 2:4:6 w l ls 3 not, \
+"pseudo7_4.res" u 2:4:6 w l ls 3 not
 
-if(0) { ############ BEGIN COMMENTED OUT BLOCK ##############
 pause -1
 
 replot \
-"pseudo49_1.res" u 1:3:5 w l ls 3 not, \
-"pseudo49_2.res" u 1:3:5 w l ls 3 not, \
-"pseudo49_3.res" u 1:3:5 w l ls 3 not, \
-"pseudo49_4.res" u 1:3:5 w l ls 3 not
+"pseudo8_1.res" u 2:4:6 w l ls 3 not, \
+"pseudo8_2.res" u 2:4:6 w l ls 3 not, \
+"pseudo8_3.res" u 2:4:6 w l ls 3 not, \
+"pseudo8_4.res" u 2:4:6 w l ls 3 not
 #$Mydata1 w p ls SM1 not
-} ################# END COMMENTED OUT BLOCK ##############
+
+pause -1
+
+replot for [i=9:15] "pseudo".i.".res" u 2:4:6 w l ls 1 not
+#$Mydata2 w p ls IM not
+
+pause -1
+
+replot \
+"pseudo16_1.res" u 2:4:6 w l ls 2 not, \
+"pseudo16_2.res" u 2:4:6 w l ls 2 not, \
+"pseudo16_3.res" u 2:4:6 w l ls 2 not, \
+"pseudo16_4.res" u 2:4:6 w l ls 2 not
+
+pause -1
+
+replot \
+"pseudo47_1.res" u 2:4:6 w l ls 3 not, \
+"pseudo47_2.res" u 2:4:6 w l ls 3 not, \
+"pseudo47_3.res" u 2:4:6 w l ls 3 not, \
+"pseudo47_4.res" u 2:4:6 w l ls 3 not
+if(0) { ################ BEGIN COMMENT BLOCK ##############
+} ################ END COMMENT BLOCK ##############
 
 unset out
 unset term
