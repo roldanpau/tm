@@ -1,3 +1,11 @@
+/* DO NOT USE THIS FILE!!!
+ *
+ * In this project ('tm'), the code in 
+ * SM_module.c now computes the transition map, NOT THE SM! 
+ * Then, diffusion_greedy and diffusion_shortest_path.c use SM.c to compute
+ * diffusion pseudo-orbits.
+ */
+
 /** \file diffusion_shortest_path_TM.c
   * \brief Starting at the given IC, successively iterate the IM and TM1,TM2 to gain action.
   *
