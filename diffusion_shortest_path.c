@@ -39,8 +39,8 @@ const int ntori=8;		/* Number of tori used in numerical SM */
 const int N = 8;    /* Degree of Fourier series */
 const int L = 4;    /* Degree of Taylor series */
 
-const int nCellsI = 30;		/* Number of cells in the I direction */
-const int nCellsPhi = 30;	/* Number of cells in the phi direction */
+const int nCellsI = 50;		/* Number of cells in the I direction */
+const int nCellsPhi = 50;	/* Number of cells in the phi direction */
 const int nCells = nCellsI*nCellsPhi;	/* Total number of cells (vertices) */
 
 const double dI = 7.0/nCellsI;
@@ -228,11 +228,11 @@ main (int argc, char *argv[])
     double Ip, phip;    /* (I', \phi') = Image of (I, phi) by the IM/SM */
 
 	/* graph[i][j] = distance from vertex i to vertex j */
-	int graph[MAX_VERTICES][MAX_VERTICES];
+	static int graph[MAX_VERTICES][MAX_VERTICES];
 
 	/* graphMaps[i][j] = map needed to go from vertex i to vertex j 
 	 * Possible maps are: IM = 0, SM1 = 1, SM2 = 2 */
-	int graphMaps[MAX_VERTICES][MAX_VERTICES];
+	static int graphMaps[MAX_VERTICES][MAX_VERTICES];
 
 	int prev[MAX_VERTICES];
 
