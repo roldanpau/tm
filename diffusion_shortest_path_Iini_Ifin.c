@@ -299,7 +299,7 @@ main (int argc, char *argv[])
 
             printf("%f %f\n", I, phi);
             current = source;
-            while(current != target && fabs(I-It)>0.5)
+            while(current != target && fabs(I-It)>0.5 && I<7.5)
             //while(fabs(I-It)+fabs(phi-phit)>0.5)
             //while(fabs(I-It)>0.5)
             {
