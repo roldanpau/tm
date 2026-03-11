@@ -43,9 +43,16 @@ void printShortestPath(int prev[], int dist[], int src, int target) {
 	}
 }
 
-// Function to implement Dijkstra's algorithm for a given graph and source vertex
-void dijkstra(int graph[MAX_VERTICES][MAX_VERTICES], int src, int target, int
-		vertices, int prev[MAX_VERTICES]) {
+// Function to implement Dijkstra's algorithm for a given graph and source
+// vertex.
+//
+// graphMaps[i][j] = map needed to go from vertex i to vertex j.
+// Possible maps are: IM = 0, SM1 = 1, SM2 = 2.
+// This parameter is not needed in the usual dijkstra algorithm. It is used
+// here to avoid applying the Inner Map twice in a row.
+void dijkstra(int graph[MAX_VERTICES][MAX_VERTICES], 
+const int graphMaps[MAX_VERTICES][MAX_VERTICES], int src, int target, 
+int vertices, int prev[MAX_VERTICES]) {
 
     int dist[MAX_VERTICES]; // The output array dist[i] holds the shortest distance from src to i
     int sptSet[MAX_VERTICES]; // sptSet[i] will be true if vertex i is included in the shortest path tree or the shortest distance from src to i is finalized
@@ -76,9 +83,13 @@ void dijkstra(int graph[MAX_VERTICES][MAX_VERTICES], int src, int target, int
 
         // Update dist value of the adjacent vertices of the picked vertex.
         for (int v = 0; v < vertices; v++) {
-            // Update dist[v] only if it is not in the sptSet, there is an edge from u to v,
-            // and the total weight of path from src to v through u is smaller than the current value of dist[v]
-            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]) {
+            // Update dist[v] only if it is not in the sptSet, there is an edge
+            // from u to v, and the total weight of path from src to v through u
+            // is smaller than the current value of dist[v]. 
+            // Extra condition: No two consecutive applications of IM.
+            if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && 
+                dist[u] + graph[u][v] < dist[v] && 
+                !(graphMaps[prev[u]][u]== 0 && graphMaps[u][v]==0)) {
                 dist[v] = dist[u] + graph[u][v];
 				prev[v] = u;
             }

@@ -289,7 +289,7 @@ main (int argc, char *argv[])
     while(fabs(I-It)>0.5)
     {
 		// Perform Dijkstra's algorithm
-		dijkstra(graph, target, current, nCells, prev);
+		dijkstra(graph, graphMaps, target, current, nCells, prev);
 
 		next = prev[current];
 		if(next == -1)
