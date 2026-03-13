@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>    // bool
 #include <math.h>       // fabs
 #include <assert.h>
 #include <float.h>      // DBL_MAX
@@ -46,6 +47,10 @@ const int nCells = nCellsI*nCellsPhi;	/* Total number of cells (vertices) */
 
 const double dI = 7.0/nCellsI;
 const double dphi = 2*M_PI/nCellsPhi;
+
+const double TIME_SM1 = 8.4;
+const double TIME_SM2 = 8.1;
+const double TIME_IM = 3.0;
 
 void cell2pt(int i, int j, double *I, double *phi)
 {
@@ -100,7 +105,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Add (directed) edges corresponding to SM1, and assign them a distance of
-	 * 6 time units. */
+	 * TIME_SM1 time units. */
 	for(i=0; i<nCellsI; i++)
 	{
 		for(j=0; j<nCellsPhi; j++)
@@ -120,7 +125,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 6 (time spent by SM1)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 6;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 6;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_SM1;
 
 			/* map applied to go from (i,j) to (ip,jp) = SM1 */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 1;
@@ -129,7 +134,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Add (directed) edges corresponding to SM2, and assign them a distance of
-	 * 6 time units. */
+	 * TIME_SM2 time units. */
 	for(i=0; i<nCellsI; i++)
 	{
 		for(j=0; j<nCellsPhi; j++)
@@ -149,7 +154,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 6 (time spent by SM2)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 6;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 6;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_SM2;
 
 			/* map applied to go from (i,j) to (ip,jp) = SM2 */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 2;
@@ -158,7 +163,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Finally, add (directed) edges corresponding to IM, and assign them a
-	 * distance of 3 time units. Notice that IM applications take prececence
+	 * distance of TIME_IM time units. Notice that IM applications take prececence
 	 * over SM applications, in case there is both an IM edge and a SM edge
 	 * between (i,j) and (ip,jp). */
 	for(i=0; i<nCellsI; i++)
@@ -175,7 +180,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 3 (time spent by IM)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 3;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 3;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_IM;
 
 			/* map applied to go from (i,j) to (ip,jp) = IM */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 0;
@@ -248,13 +253,16 @@ main (int argc, char *argv[])
 
     const int nphi=10;      /* Number of initial and final phases considered */
 
-    int nit_in, nit_out;  /* total number of iterates by the IM, SM */
-    double diff_time;       /* best total diffusion time obtained */
+    int nit_IM, nit_SM1, nit_SM2;  /* total number of iterates by the IM, SM */
+
+    double phi_best, phit_best;     /* best initial, final angles found */
+    double diff_time_best;          /* best total diffusion time obtained */
 
     /* auxiliary vars */
 	double phi_old;
 	int map, iErr, iphi, iphit;
-    double phi_best, phit_best;
+    double diff_time;               /* diffusion time of current psedu-orbit */
+    bool bAbort;
 
     if(argc != 3)
     {
@@ -263,12 +271,14 @@ main (int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    diff_time = DBL_MAX;    /* Initalize diffusion time */
+    diff_time_best = DBL_MAX;    /* Initalize optimal diffusion time */
     for(iphi=0; iphi<nphi; iphi++)
     {
         for(iphit=0; iphit<nphi; iphit++)
         {
-            nit_in = nit_out = 0;   /* initialize num iterates of IM, SM */
+            bAbort = false;    /* Abort this pseudo-orbit? */
+
+            nit_IM = nit_SM1 = nit_SM2 = 0;   /* initialize num iterates of IM, SM */
 
             I = atof(argv[1]);	    /* scaled action level, e.g. I=2 */
             It = atof(argv[2]);	    /* I_target */
@@ -311,7 +321,7 @@ main (int argc, char *argv[])
                 {
                     printf("No path from current vertex to target!\n");
                     printf("Aborting this pseudo-orbit...\n");
-                    nit_out=0;
+                    bAbort=true;
                     break;
                 }
                 /* The next vertex in the shortest path is `next' */
@@ -332,7 +342,7 @@ main (int argc, char *argv[])
                     //if(phi_old<M_PI/2 && phi>M_PI/2) printf("\n");
                         
                     printf("%f %f %s\n", I, phi, "IM");
-                    nit_in++;
+                    nit_IM++;
                 }
                 else if(map == 1)
                 {
@@ -347,7 +357,7 @@ main (int argc, char *argv[])
                     I = Ip;
                     phi = phip;
                     printf("%f %f %s\n", I, phi, "SM1");
-                    nit_out++;
+                    nit_SM1++;
                 }
                 else	/* SM2 */
                 {
@@ -362,7 +372,7 @@ main (int argc, char *argv[])
                     I = Ip;
                     phi = phip;
                     printf("%f %f %s\n", I, phi, "SM2");
-                    nit_out++;
+                    nit_SM2++;
                 }
 
                 /* Update current vertex */
@@ -370,21 +380,22 @@ main (int argc, char *argv[])
                 current = i*nCellsI+j;
             }
 
-            if(nit_out==0)  /* No pseudo-orbit has been found */
+            if(bAbort)  /* No pseudo-orbit has been found */
                 break;
 
             /* Update diffusion time if it has improved */
+            diff_time = TIME_IM*nit_IM + TIME_SM1*nit_SM1 + TIME_SM2*nit_SM2;
             fprintf(stderr, "phi=%f, phit=%f, diff_time=%f\n", iphi*(2*M_PI/nphi),
-            iphit*(2*M_PI/nphi), 3.0*nit_in+6.0*nit_out);
-            if(3*nit_in+6*nit_out < diff_time)
+            iphit*(2*M_PI/nphi), diff_time);
+            if(diff_time < diff_time_best)
             {
                 phi_best = iphi*(2*M_PI/nphi);
                 phit_best = iphit*(2*M_PI/nphi);
-                diff_time = 3.0*nit_in+6.0*nit_out;
+                diff_time_best = diff_time;
             }
         }
     }
-    fprintf(stderr, "phi_best=%f, phit_best=%f, diff_time=%f\n", phi_best,
-    phit_best, diff_time);
+    fprintf(stderr, "phi_best=%f, phit_best=%f, diff_time_best=%f\n", phi_best,
+    phit_best, diff_time_best);
     return 0;
 }
