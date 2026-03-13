@@ -46,6 +46,10 @@ const int nCells = nCellsI*nCellsPhi;	/* Total number of cells (vertices) */
 const double dI = 7.0/nCellsI;
 const double dphi = 2*M_PI/nCellsPhi;
 
+const double TIME_SM1 = 5.6;
+const double TIME_SM2 = 5.1;
+const double TIME_IM = 3.0;
+
 void cell2pt(int i, int j, double *I, double *phi)
 {
 	assert(i>= 0 && i<nCellsI);
@@ -99,7 +103,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Add (directed) edges corresponding to SM1, and assign them a distance of
-	 * 6 time units. */
+	 * TIME_SM1 time units. */
 	for(i=0; i<nCellsI; i++)
 	{
 		for(j=0; j<nCellsPhi; j++)
@@ -119,7 +123,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 6 (time spent by SM1)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 6;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 6;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_SM1;
 
 			/* map applied to go from (i,j) to (ip,jp) = SM1 */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 1;
@@ -128,7 +132,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Add (directed) edges corresponding to SM2, and assign them a distance of
-	 * 6 time units. */
+	 * TIME_SM2 time units. */
 	for(i=0; i<nCellsI; i++)
 	{
 		for(j=0; j<nCellsPhi; j++)
@@ -148,7 +152,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 6 (time spent by SM2)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 6;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 6;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_SM2;
 
 			/* map applied to go from (i,j) to (ip,jp) = SM2 */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 2;
@@ -157,7 +161,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 	}
 
 	/* Finally, add (directed) edges corresponding to IM, and assign them a
-	 * distance of 3 time units. Notice that IM applications take prececence
+	 * distance of TIME_IM time units. Notice that IM applications take prececence
 	 * over SM applications, in case there is both an IM edge and a SM edge
 	 * between (i,j) and (ip,jp). */
 	for(i=0; i<nCellsI; i++)
@@ -174,7 +178,7 @@ void initGraph(double ipA[N+1][L+1], double ipB[N+1][L+1],
 			/* distance between cells (i,j) and (ip,jp) = 3 (time spent by IM)
 			 * */
 			//graph[i*nCellsI+j][ip*nCellsI+jp] = 3;
-			graph[ip*nCellsI+jp][i*nCellsI+j] = 3;
+			graph[ip*nCellsI+jp][i*nCellsI+j] = TIME_IM;
 
 			/* map applied to go from (i,j) to (ip,jp) = IM */
 			//graphMaps[i*nCellsI+j][ip*nCellsI+jp] = 0;
@@ -245,9 +249,12 @@ main (int argc, char *argv[])
 	/* next vertex */
 	int current, next;	
 
+    int nit_IM, nit_SM1, nit_SM2;  /* total number of iterates by the IM, SM */
+
     /* auxiliary vars */
 	double phi_old;
 	int map, iErr;
+    double diff_time;               /* diffusion time of current psedu-orbit */
 
     if(argc != 5)
     {
@@ -255,6 +262,8 @@ main (int argc, char *argv[])
 				I_target phi_target\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+
+    nit_IM = nit_SM1 = nit_SM2 = 0;   /* initialize num iterates of IM, SM */
 
     I = atof(argv[1]);	    /* scaled action level, e.g. I=2 */
     phi = atof(argv[2]);	/* \phi */
@@ -315,6 +324,7 @@ main (int argc, char *argv[])
 			   diffusion_SM2.plt.
 			 */
 			//if(phi_old<M_PI/2 && phi>M_PI/2) printf("\n");
+                    	nit_IM++;
 		}
 		else if(map == 1)
 		{
@@ -330,6 +340,7 @@ main (int argc, char *argv[])
 
 			I = Ip;
 			phi = phip;
+                    	nit_SM1++;
 		}
 		else	/* SM2 */
 		{
@@ -345,6 +356,7 @@ main (int argc, char *argv[])
 
 			I = Ip;
 			phi = phip;
+                    	nit_SM2++;
 		}
 
 		/* Update current vertex */
@@ -360,5 +372,8 @@ main (int argc, char *argv[])
     else
         printf("%f %f %s\n", I, phi, "SM2");
 
+    diff_time = nit_IM*TIME_IM + nit_SM1*TIME_SM1 + nit_SM2*TIME_SM2;
+    fprintf(stderr, "nit_IM=%d, nit_SM1=%d, nit_SM2=%d, diff_time=%f\n", nit_IM,
+    nit_SM1, nit_SM2, diff_time);
     return 0;
 }
