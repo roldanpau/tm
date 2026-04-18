@@ -9,7 +9,7 @@ set xlabel "phi"
 set ylabel "I"
 
 set xrange [0:2*pi]
-#set yrange [0:7]
+set yrange [0:7]
 
 #set arrow from 0,I to pi,I nohead 
 plot "phase_port_SM2.res" u 2:1 pt 7 ps 0.05 not
