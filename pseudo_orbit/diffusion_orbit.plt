@@ -1,7 +1,8 @@
 load "plotdefs.plt"
 
 #set term post eps color
-#set out "images/diffusion_orbit_XYZ.eps" 
+#set term pdf
+#set out "diffusion_orbit_XYZ.pdf" 
 
 set xlabel '$X$'
 set ylabel '$Y$'
@@ -12,9 +13,9 @@ set zlabel '$Z$'
 #
 set for [i=1:5] linetype i dt i
 
-set style line 1 lt 1 lw 3 linecolor rgb "green"
-set style line 2 lt 1 lw 3 linecolor rgb "blue"
-set style line 3 lt 1 lw 3 linecolor rgb "red"
+set style line 1 lt 1 lw 1 linecolor rgb "green"
+set style line 2 lt 1 lw 1 linecolor rgb "blue"
+set style line 3 lt 1 lw 1 linecolor rgb "red"
 
 set object 1 circle at -1,0 size 0.0001 front fc rgb "blue" fs solid
 
@@ -67,6 +68,7 @@ replot \
 "pseudo16_3.res" u 2:4:6 w l ls 2 not, \
 "pseudo16_4.res" u 2:4:6 w l ls 2 not
 
+if(0) { ################ BEGIN COMMENT BLOCK ##############
 pause -1
 
 replot \
@@ -74,7 +76,6 @@ replot \
 "pseudo47_2.res" u 2:4:6 w l ls 3 not, \
 "pseudo47_3.res" u 2:4:6 w l ls 3 not, \
 "pseudo47_4.res" u 2:4:6 w l ls 3 not
-if(0) { ################ BEGIN COMMENT BLOCK ##############
 } ################ END COMMENT BLOCK ##############
 
 unset out
