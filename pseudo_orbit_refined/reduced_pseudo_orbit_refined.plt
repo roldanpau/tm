@@ -25,8 +25,10 @@ set object 1 circle at -1,0 size 0.0001 front fc rgb "blue" fs solid
 set view 31,173
 
 splot [-1.002:-0.988] [-0.004:0.004] [-0.0008:0.0008] \
+"pseudo1_1.res" every 3 u 2:4:6 w l ls 3 not, \
 "pseudo1_2.res" every 3 u 2:4:6 w l ls 3 not, \
-"pseudo1_3.res" every 3 u 2:4:6 w l ls 3 not
+"pseudo1_3.res" every 3 u 2:4:6 w l ls 3 not, \
+"pseudo1_4.res" every 3 u 2:4:6 w l ls 3 not
 #$Mydata1 w p ls SM1 not
 
 
@@ -36,19 +38,27 @@ replot "L1.dat" with points lc rgb 'black' pt 3 ps 3 not
 
 SEGMENTS_SM1="14 11 9 6 4"
 replot for [i in SEGMENTS_SM1] \
+"pseudo".i."_1.res" every 3 u 2:4:6 w l ls 2 not
+replot for [i in SEGMENTS_SM1] \
 "pseudo".i."_2.res" every 3 u 2:4:6 w l ls 2 not
 replot for [i in SEGMENTS_SM1] \
 "pseudo".i."_3.res" every 3 u 2:4:6 w l ls 2 not
+replot for [i in SEGMENTS_SM1] \
+"pseudo".i."_4.res" every 3 u 2:4:6 w l ls 2 not
 
 SEGMENTS_SM2="16 15 13 12 10 8 7 5 3 2"
 replot for [i in SEGMENTS_SM2] \
+"pseudo".i."_1.res" every 3 u 2:4:6 w l ls 3 not
+replot for [i in SEGMENTS_SM2] \
 "pseudo".i."_2.res" every 3 u 2:4:6 w l ls 3 not
-
-set term tikz
-set out "pseudo_orbit_refined.tex" 
-
 replot for [i in SEGMENTS_SM2] \
 "pseudo".i."_3.res" every 3 u 2:4:6 w l ls 3 not
+
+set term tikz
+set out "reduced_pseudo_orbit_refined.tex" 
+
+replot for [i in SEGMENTS_SM2] \
+"pseudo".i."_4.res" every 3 u 2:4:6 w l ls 3 not
 
 unset out
 unset term
