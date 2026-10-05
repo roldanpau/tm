@@ -1,3 +1,5 @@
+load "plotdefs.plt"
+
 set term png size 800,600
 set out "phase_port_SM2.png"
 #set term cairolatex png size 4.8,3.6
@@ -9,10 +11,11 @@ set xlabel "phi"
 set ylabel "I"
 
 set xrange [0:2*pi]
-#set yrange [0:7]
+set yrange [0:7]
 
 #set arrow from 0,I to pi,I nohead 
-plot "phase_port_SM2.res" u 2:1 pt 7 ps 0.05 not
+#plot "phase_port_SM2.res" u 2:1 pt 7 ps 0.05 not
+plot "phase_port_SM2.res" u 2:1 ls PPSM2ST not
 
 unset out
 unset term
