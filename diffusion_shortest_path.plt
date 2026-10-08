@@ -4,7 +4,7 @@ set term png size 800,600
 set out "diffusion_shortest_path.png"
 
 set xlabel 'phi'
-set ylabel 'I'
+set ylabel 'J'
 
 #"diffusion_shortest_path.res" u 2:1 w l ls PO not, \
 
