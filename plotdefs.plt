@@ -13,9 +13,9 @@ paleviolet = "#BF9FDF"
 paleorange= "#CF9F70"
 
 set style line PO lc rgb "black" 
-set style line IM pt 5 lc rgb "green"
-set style line SM1 pt 5 lc rgb "blue"
-set style line SM2 pt 5 lc rgb "red"
+set style line IM dt 4 pt 5 lc rgb "green"
+set style line SM1 dt 4 pt 5 lc rgb "blue"
+set style line SM2 dt 4 pt 5 lc rgb "red"
 set style line PPSM1 pt 7 ps 0.1 lc rgb paleviolet
 set style line PPSM2 pt 7 ps 0.1 lc rgb paleorange 
 set style line PPSM1ST pt 7 ps 0.1 lc rgb "blue"
